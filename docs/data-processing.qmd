@@ -1,0 +1,40 @@
+---
+title: "Data Processing"
+---
+
+# Data Acquisition
+
+Describe where you got the data and how you downloaded it.
+
+```{r}
+#| echo: true
+#| eval: false
+# This is how I downloaded the data. I'm using eval: false so it doesn't run.
+# data <- read.csv("https://some-website.com/data.csv")
+```
+
+# Data Cleaning
+
+Show the steps you took to clean the data.
+
+```{r}
+#| echo: true
+# Load the cleaned data (which you've saved locally)
+# cleaned_data <- readRDS("cleaned_data.rds")
+
+# Show the structure
+# str(cleaned_data)
+
+# Show a summary
+# summary(cleaned_data)
+```
+
+# Exploratory Data Analysis
+
+This is where you put all your exploratory plots (the ones that didn't make it into the final report).
+
+```{r}
+#| echo: true
+# Exploratory histogram
+# ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()
+```

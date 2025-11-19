@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Final Project",
+    "section": "",
+    "text": "Background on my topic and my research question."
+  },
+  {
+    "objectID": "index.html#key-finding-1",
+    "href": "index.html#key-finding-1",
+    "title": "Final Project",
+    "section": "Key Finding 1",
+    "text": "Key Finding 1\nHere is an interactive plot.\n\n# Let's make a simple interactive plot with plotly\nlibrary(plotly)\n\nLoading required package: ggplot2\n\n\n\nAttaching package: 'plotly'\n\n\nThe following object is masked from 'package:ggplot2':\n\n    last_plot\n\n\nThe following object is masked from 'package:stats':\n\n    filter\n\n\nThe following object is masked from 'package:graphics':\n\n    layout\n\nlibrary(ggplot2)\n\n# Example using mtcars dataset\np &lt;- ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +\n  geom_point(size = 2) +\n  labs(title = \"Car MPG vs Weight\", x = \"Weight (1000 lbs)\", y = \"Miles per Gallon\")\n\n# Make it interactive\nggplotly(p)"
+  },
+  {
+    "objectID": "index.html#key-finding-2",
+    "href": "index.html#key-finding-2",
+    "title": "Final Project",
+    "section": "Key Finding 2",
+    "text": "Key Finding 2\nHere is a static table or figure."
+  },
+  {
+    "objectID": "Data-Processing.html",
+    "href": "Data-Processing.html",
+    "title": "Data Processing",
+    "section": "",
+    "text": "Data Acquisition\nDescribe where you got the data and how you downloaded it.\n\n# This is how I downloaded the data. I'm using eval: false so it doesn't run.\n# data &lt;- read.csv(\"https://some-website.com/data.csv\")\n\n\n\nData Cleaning\nShow the steps you took to clean the data.\n\n# Load the cleaned data (which you've saved locally)\n# cleaned_data &lt;- readRDS(\"cleaned_data.rds\")\n\n# Show the structure\n# str(cleaned_data)\n\n# Show a summary\n# summary(cleaned_data)\n\n\n\nExploratory Data Analysis\nThis is where you put all your exploratory plots (the ones that didn’t make it into the final report).\n\n# Exploratory histogram\n# ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()"
+  }
+]

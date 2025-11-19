@@ -1,0 +1,38 @@
+---
+title: "Final Project"
+---
+
+# Introduction
+
+Background on my topic and my research question.
+
+# Methods
+
+A brief overview of my data sources and analytical approach.
+
+# Results
+
+## Key Finding 1
+Here is an interactive plot.
+
+```{r}
+#| context: widget
+# Let's make a simple interactive plot with plotly
+library(plotly)
+library(ggplot2)
+
+# Example using mtcars dataset
+p <- ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +
+  geom_point(size = 2) +
+  labs(title = "Car MPG vs Weight", x = "Weight (1000 lbs)", y = "Miles per Gallon")
+
+# Make it interactive
+ggplotly(p)
+```
+
+## Key Finding 2
+Here is a static table or figure.
+
+# Conclusion and Summary
+
+A brief recap of my findings.
