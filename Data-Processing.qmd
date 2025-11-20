@@ -2,31 +2,59 @@
 title: "Data Processing"
 ---
 
-# Data Acquisition
+## Data Acquisition
 
 Describe where you got the data and how you downloaded it.
 
-```{r}
-#| echo: true
-#| eval: false
-# This is how I downloaded the data. I'm using eval: false so it doesn't run.
-# data <- read.csv("https://some-website.com/data.csv")
+
+1. Zillow Home Value & Rent Data
+Source: Zillow Research Data Portal (https://www.zillow.com/research/data/)
+
+Files Downloaded:
+
+Metro_zhvi_uc_sfrcondo_tier.csv - All Homes Time Series, Metro Level
+
+Metro_zori_sm.csv - Observed Rent Index, Metro Level
+
+Acquisition Method: Direct download via web browser. Files contain monthly values for all metropolitan statistical areas.
+
+
+
+2. Census Income Data
+Source: U.S. Census Bureau American Community Survey (ACS)
+
+Table Used: S1903 - Median Income in the Past 12 Months
+
+Geography: Metropolitan Statistical Areas
+
+Years: 2014-2022 (most recent available)
+
+
+3. Mortgage Rate Data
+Source: Federal Reserve Economic Data (FRED)
+
+Series: MORTGAGE30US - 30-Year Fixed Rate Mortgage Average
+
+Acquisition Method: Downloaded via the fredr R package interface
+
+Time Period: Monthly averages, 2014-2025
+
+
+```{r, eval=FALSE}
+library(readr)
+Census_Income_Data <- read_csv("ACSST1Y2024.S1903-2025-11-19T223915.csv")
+Metropolitan_level_Zillow_Home_Value_Index <- read_csv("Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv")
+Zillow_Observed_Rent_Index <- read_csv("Metro_zori_uc_sfrcondomfr_sm_month.csv")
+Mortage_interest_rates <- read_csv("MORTGAGE30US.csv")
 ```
+
 
 # Data Cleaning
 
 Show the steps you took to clean the data.
 
 ```{r}
-#| echo: true
-# Load the cleaned data (which you've saved locally)
-# cleaned_data <- readRDS("cleaned_data.rds")
 
-# Show the structure
-# str(cleaned_data)
-
-# Show a summary
-# summary(cleaned_data)
 ```
 
 # Exploratory Data Analysis

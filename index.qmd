@@ -1,38 +1,40 @@
 ---
-title: "Final Project"
+title: "The American Dream Squeezed: A Data-Driven Look at the U.S. Housing Affordability Crisis"
+author: "Christian Navarro"
+format: 
+  html:
+    embed-resources: true
 ---
 
 # Introduction
 
-Background on my topic and my research question.
+The idea of owning a home is a cornerstone of the American Dream. However, for a growing number of Americans, that dream feels increasingly out of reach. Headlines routinely highlight skyrocketing home prices in cities like San Francisco and Austin, but is this a national crisis or a localized problem? This report moves beyond the anecdotes to analyze the data.
+
+Our central question is: How has housing affordability changed for median-income households in major U.S. metropolitan areas over the last decade, and what are the primary drivers of this change?
+
+We will explore how the relationship between income, home prices, and rents has shifted since 2015, identifying which cities have become opportunity zones and which have become unattainable for the typical worker.
 
 # Methods
 
-A brief overview of my data sources and analytical approach.
+Data Acquisition: This analysis integrates Zillow's Metropolitan-level Home Value Index (ZHVI) and Observed Rent Index (ZORI) with Median Household Income data from the U.S. Census Bureau's American Community Survey (ACS).
+
+Data Processing: The datasets were cleaned by filtering to a consistent 2015-2025 period, and calculating annual averages from monthly data.
+
+Key Metrics: We derived core affordability indicators, including the Affordability Index (median home price divided by median income) and Rent Burden (annual rent as a percentage of income).
+
+Tools & Techniques: The analysis was conducted using R and the Tidyverse suite for data wrangling. Interactive visualizations were built with ggplot2 and Plotly to enhance data exploration and communication.
+
+
 
 # Results
 
 ## Key Finding 1
-Here is an interactive plot.
 
-```{r}
-#| context: widget
-# Let's make a simple interactive plot with plotly
-library(plotly)
-library(ggplot2)
 
-# Example using mtcars dataset
-p <- ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +
-  geom_point(size = 2) +
-  labs(title = "Car MPG vs Weight", x = "Weight (1000 lbs)", y = "Miles per Gallon")
-
-# Make it interactive
-ggplotly(p)
-```
 
 ## Key Finding 2
-Here is a static table or figure.
+
 
 # Conclusion and Summary
 
-A brief recap of my findings.
+

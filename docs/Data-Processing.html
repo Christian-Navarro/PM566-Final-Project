@@ -131,9 +131,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="./data-processing.qmd"> 
-<span class="menu-text"></span></a>
+  <li class="nav-item">
+    <a class="nav-link active" href="./Data-Processing.html" aria-current="page"> 
+<span class="menu-text">Data Processing</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -179,34 +179,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="data-acquisition" class="level1">
-<h1>Data Acquisition</h1>
+<section id="data-acquisition" class="level2">
+<h2 class="anchored" data-anchor-id="data-acquisition">Data Acquisition</h2>
 <p>Describe where you got the data and how you downloaded it.</p>
+<ol type="1">
+<li>Zillow Home Value &amp; Rent Data Source: Zillow Research Data Portal (https://www.zillow.com/research/data/)</li>
+</ol>
+<p>Files Downloaded:</p>
+<p>Metro_zhvi_uc_sfrcondo_tier.csv - All Homes Time Series, Metro Level</p>
+<p>Metro_zori_sm.csv - Observed Rent Index, Metro Level</p>
+<p>Acquisition Method: Direct download via web browser. Files contain monthly values for all metropolitan statistical areas.</p>
+<ol start="2" type="1">
+<li>Census Income Data Source: U.S. Census Bureau American Community Survey (ACS)</li>
+</ol>
+<p>Table Used: S1903 - Median Income in the Past 12 Months</p>
+<p>Geography: Metropolitan Statistical Areas</p>
+<p>Years: 2014-2022 (most recent available)</p>
+<ol start="3" type="1">
+<li>Mortgage Rate Data Source: Federal Reserve Economic Data (FRED)</li>
+</ol>
+<p>Series: MORTGAGE30US - 30-Year Fixed Rate Mortgage Average</p>
+<p>Acquisition Method: Downloaded via the fredr R package interface</p>
+<p>Time Period: Monthly averages, 2014-2025</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is how I downloaded the data. I'm using eval: false so it doesn't run.</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># data &lt;- read.csv("https://some-website.com/data.csv")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Census_Income_Data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"ACSST1Y2024.S1903-2025-11-19T223915.csv"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Metropolitan_level_Zillow_Home_Value_Index <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Zillow_Observed_Rent_Index <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Metro_zori_uc_sfrcondomfr_sm_month.csv"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Mortage_interest_rates <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"MORTGAGE30US.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="data-cleaning" class="level1">
 <h1>Data Cleaning</h1>
 <p>Show the steps you took to clean the data.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the cleaned data (which you've saved locally)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cleaned_data &lt;- readRDS("cleaned_data.rds")</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the structure</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># str(cleaned_data)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Show a summary</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># summary(cleaned_data)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="exploratory-data-analysis" class="level1">
 <h1>Exploratory Data Analysis</h1>
 <p>This is where you put all your exploratory plots (the ones that didn’t make it into the final report).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exploratory histogram</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exploratory histogram</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

@@ -2,29 +2,36 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Final Project",
+    "title": "The American Dream Squeezed: A Data-Driven Look at the U.S. Housing Affordability Crisis",
     "section": "",
-    "text": "Background on my topic and my research question."
+    "text": "The idea of owning a home is a cornerstone of the American Dream. However, for a growing number of Americans, that dream feels increasingly out of reach. Headlines routinely highlight skyrocketing home prices in cities like San Francisco and Austin, but is this a national crisis or a localized problem? This report moves beyond the anecdotes to analyze the data.\nOur central question is: How has housing affordability changed for median-income households in major U.S. metropolitan areas over the last decade, and what are the primary drivers of this change?\nWe will explore how the relationship between income, home prices, and rents has shifted since 2015, identifying which cities have become opportunity zones and which have become unattainable for the typical worker."
   },
   {
     "objectID": "index.html#key-finding-1",
     "href": "index.html#key-finding-1",
-    "title": "Final Project",
+    "title": "The American Dream Squeezed: A Data-Driven Look at the U.S. Housing Affordability Crisis",
     "section": "Key Finding 1",
-    "text": "Key Finding 1\nHere is an interactive plot.\n\n# Let's make a simple interactive plot with plotly\nlibrary(plotly)\n\nLoading required package: ggplot2\n\n\n\nAttaching package: 'plotly'\n\n\nThe following object is masked from 'package:ggplot2':\n\n    last_plot\n\n\nThe following object is masked from 'package:stats':\n\n    filter\n\n\nThe following object is masked from 'package:graphics':\n\n    layout\n\nlibrary(ggplot2)\n\n# Example using mtcars dataset\np &lt;- ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +\n  geom_point(size = 2) +\n  labs(title = \"Car MPG vs Weight\", x = \"Weight (1000 lbs)\", y = \"Miles per Gallon\")\n\n# Make it interactive\nggplotly(p)"
+    "text": "Key Finding 1"
   },
   {
     "objectID": "index.html#key-finding-2",
     "href": "index.html#key-finding-2",
-    "title": "Final Project",
+    "title": "The American Dream Squeezed: A Data-Driven Look at the U.S. Housing Affordability Crisis",
     "section": "Key Finding 2",
-    "text": "Key Finding 2\nHere is a static table or figure."
+    "text": "Key Finding 2"
   },
   {
     "objectID": "Data-Processing.html",
     "href": "Data-Processing.html",
     "title": "Data Processing",
     "section": "",
-    "text": "Data Acquisition\nDescribe where you got the data and how you downloaded it.\n\n# This is how I downloaded the data. I'm using eval: false so it doesn't run.\n# data &lt;- read.csv(\"https://some-website.com/data.csv\")\n\n\n\nData Cleaning\nShow the steps you took to clean the data.\n\n# Load the cleaned data (which you've saved locally)\n# cleaned_data &lt;- readRDS(\"cleaned_data.rds\")\n\n# Show the structure\n# str(cleaned_data)\n\n# Show a summary\n# summary(cleaned_data)\n\n\n\nExploratory Data Analysis\nThis is where you put all your exploratory plots (the ones that didn’t make it into the final report).\n\n# Exploratory histogram\n# ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()"
+    "text": "Describe where you got the data and how you downloaded it.\n\nZillow Home Value & Rent Data Source: Zillow Research Data Portal (https://www.zillow.com/research/data/)\n\nFiles Downloaded:\nMetro_zhvi_uc_sfrcondo_tier.csv - All Homes Time Series, Metro Level\nMetro_zori_sm.csv - Observed Rent Index, Metro Level\nAcquisition Method: Direct download via web browser. Files contain monthly values for all metropolitan statistical areas.\n\nCensus Income Data Source: U.S. Census Bureau American Community Survey (ACS)\n\nTable Used: S1903 - Median Income in the Past 12 Months\nGeography: Metropolitan Statistical Areas\nYears: 2014-2022 (most recent available)\n\nMortgage Rate Data Source: Federal Reserve Economic Data (FRED)\n\nSeries: MORTGAGE30US - 30-Year Fixed Rate Mortgage Average\nAcquisition Method: Downloaded via the fredr R package interface\nTime Period: Monthly averages, 2014-2025\n\nlibrary(readr)\nCensus_Income_Data &lt;- read_csv(\"ACSST1Y2024.S1903-2025-11-19T223915.csv\")\nMetropolitan_level_Zillow_Home_Value_Index &lt;- read_csv(\"Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv\")\nZillow_Observed_Rent_Index &lt;- read_csv(\"Metro_zori_uc_sfrcondomfr_sm_month.csv\")\nMortage_interest_rates &lt;- read_csv(\"MORTGAGE30US.csv\")"
+  },
+  {
+    "objectID": "Data-Processing.html#data-acquisition",
+    "href": "Data-Processing.html#data-acquisition",
+    "title": "Data Processing",
+    "section": "",
+    "text": "Describe where you got the data and how you downloaded it.\n\nZillow Home Value & Rent Data Source: Zillow Research Data Portal (https://www.zillow.com/research/data/)\n\nFiles Downloaded:\nMetro_zhvi_uc_sfrcondo_tier.csv - All Homes Time Series, Metro Level\nMetro_zori_sm.csv - Observed Rent Index, Metro Level\nAcquisition Method: Direct download via web browser. Files contain monthly values for all metropolitan statistical areas.\n\nCensus Income Data Source: U.S. Census Bureau American Community Survey (ACS)\n\nTable Used: S1903 - Median Income in the Past 12 Months\nGeography: Metropolitan Statistical Areas\nYears: 2014-2022 (most recent available)\n\nMortgage Rate Data Source: Federal Reserve Economic Data (FRED)\n\nSeries: MORTGAGE30US - 30-Year Fixed Rate Mortgage Average\nAcquisition Method: Downloaded via the fredr R package interface\nTime Period: Monthly averages, 2014-2025\n\nlibrary(readr)\nCensus_Income_Data &lt;- read_csv(\"ACSST1Y2024.S1903-2025-11-19T223915.csv\")\nMetropolitan_level_Zillow_Home_Value_Index &lt;- read_csv(\"Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv\")\nZillow_Observed_Rent_Index &lt;- read_csv(\"Metro_zori_uc_sfrcondomfr_sm_month.csv\")\nMortage_interest_rates &lt;- read_csv(\"MORTGAGE30US.csv\")"
   }
 ]
