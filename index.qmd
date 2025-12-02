@@ -1,5 +1,5 @@
 ---
-title: "The American Dream Squeezed: A Data-Driven Look at the U.S. Housing Affordability Crisis"
+title: "The American Dream Squeezed: A Look at the U.S. Housing Affordability Crisis"
 author: "Christian Navarro"
 format: 
   html:
@@ -9,16 +9,136 @@ format:
 ```{r,include=FALSE}
 library(tidyverse)
 library(plotly)
-library(lubridate)
 library(scales)
 
 
-# Load your clean datasets (without merging)
+# Loaded Clean Datasets
 Census_Income_Data <- read_csv("ACSST1Y2024.S1903-2025-11-19T223915.csv")
 Metropolitan_level_Zillow_Home_Value_Index <- read_csv("Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv")
 Zillow_Observed_Rent_Index <- read_csv("Metro_zori_uc_sfrcondomfr_sm_month.csv")
 Mortage_interest_rates <- read_csv("MORTGAGE30US.csv")
 ```
+
+# Introduction
+
+The American Dream of homeownership is facing unprecedented challenges. While media often focuses on extreme cases in coastal cities, this analysis seeks to quantify the housing affordability crisis across all major U.S. metropolitan areas using comprehensive market data from 2015-2025.
+
+By examining Zillow's Home Value and Rent Indices alongside Census income data, we move beyond anecdotal evidence to systematically measure where housing has become most unaffordable, which markets offer relative value, and how the landscape has transformed over the past decade.
+
+Our investigation addresses three key questions:
+
+1.  How widespread is the housing affordability crisis across different U.S. regions?
+
+2.  Which metropolitan areas remain accessible to median-income households?
+
+3.  What patterns emerge when comparing home price appreciation, rental costs, and income growth?
+
+This approach reveals not just where the crisis is most acute, but also identifies potential opportunity zones where the American Dream remains within reach.
+
+# Methods
+
+**Data Acquisition:** This analysis integrates Zillow's Metropolitan-level Home Value Index (ZHVI) and Observed Rent Index (ZORI) with Median Household Income data from the U.S. Census Bureau's American Community Survey (ACS).
+
+**Data Processing:** The datasets were cleaned by filtering to a consistent 2015-2025 period, and calculating annual averages from monthly data.
+
+**Key Metrics:** We derived core affordability indicators, including the Affordability Index (median home price divided by median income) and Rent Burden (annual rent as a percentage of income).
+
+**Tools & Techniques:** The analysis was conducted using R and the Tidyverse suite for data wrangling. Interactive visualizations were built with ggplot2 and Plotly to enhance data exploration and communication.
+
+# National Housing Market Overview
+
+## 1. Home Prices Have Surged Nationwide
+
+```{r}
+# Calculate average home price growth across all markets
+all_markets <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  summarize(
+    avg_price_2015 = mean(`2015-01-31`, na.rm = TRUE),
+    avg_price_2025 = mean(`2025-01-31`, na.rm = TRUE)
+  ) %>%
+  mutate(
+    growth = (avg_price_2025 - avg_price_2015) / avg_price_2015 * 100
+  )
+
+# Create simple bar chart
+growth_df <- data.frame(
+  year = c("2015", "2025"),
+  price = c(all_markets$avg_price_2015, all_markets$avg_price_2025)
+)
+
+ggplot(growth_df, aes(x = year, y = price)) +
+  geom_col(fill = "steelblue", alpha = 0.7, width = 0.6) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(
+    title = "Average Home Prices Have Grown Significantly",
+    subtitle = paste("Across all US markets:", round(all_markets$growth), "% increase since 2015"),
+    x = "",
+    y = "Average Home Price"
+  ) +
+  theme_minimal()
+```
+
+## 2. Rents Have Followed the Same Pattern
+
+```{r}
+# Calculate average rent growth
+rent_growth <- Zillow_Observed_Rent_Index %>%
+  summarize(
+    avg_rent_2015 = mean(`2015-01-31`, na.rm = TRUE),
+    avg_rent_2025 = mean(`2025-01-31`, na.rm = TRUE)
+  ) %>%
+  mutate(
+    growth = (avg_rent_2025 - avg_rent_2015) / avg_rent_2015 * 100
+  )
+
+# Create simple bar chart
+rent_df <- data.frame(
+  year = c("2015", "2025"),
+  rent = c(rent_growth$avg_rent_2015, rent_growth$avg_rent_2025)
+)
+
+ggplot(rent_df, aes(x = year, y = rent)) +
+  geom_col(fill = "darkorange", alpha = 0.7, width = 0.6) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(
+    title = "Rental Costs Have Also Increased Sharply",
+    subtitle = paste("Average monthly rent up:", round(rent_growth$growth), "% since 2015"),
+    x = "",
+    y = "Average Monthly Rent"
+  ) +
+  theme_minimal()
+```
+
+## 3. Widespread Growth Across Markets
+
+```{r}
+# Show how widespread the growth is
+growth_distribution <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  mutate(
+    growth = (`2024-01-31` - `2015-01-31`) / `2015-01-31` * 100
+  ) %>%
+  filter(!is.na(growth))
+
+# Calculate what percentage of markets saw high growth
+high_growth <- growth_distribution %>%
+  summarize(
+    pct_over_50 = mean(growth > 50) * 100,
+    pct_over_75 = mean(growth > 75) * 100
+  )
+
+ggplot(growth_distribution, aes(x = growth)) +
+  geom_histogram(fill = "forestgreen", alpha = 0.7, bins = 15) +
+  geom_vline(xintercept = 50, linetype = "dashed", color = "red") +
+  labs(
+    title = "Home Price Growth is Widespread",
+    subtitle = paste(round(high_growth$pct_over_50), "% of markets grew more than 50% since 2015"),
+    x = "Price Growth Since 2015 (%)",
+    y = "Number of Housing Markets"
+  ) +
+  theme_minimal()
+```
+
+## 4.Home Price Growth Distribution
 
 ```{r}
 # Analyze national trends vs local extremes
@@ -51,148 +171,244 @@ growth_distribution <- home_growth %>%
 growth_distribution
 ```
 
+# Results: Market-Level Analysis
 
+## Most Expensive Market
 
+### Top 10 Most Expensive Housing Markets (2025)
 
-1. Home Prices Have Surged Nationwide
 ```{r}
-# Calculate average home price growth across all markets
-all_markets <- Metropolitan_level_Zillow_Home_Value_Index %>%
-  summarize(
-    avg_price_2015 = mean(`2015-01-31`, na.rm = TRUE),
-    avg_price_2025 = mean(`2025-01-31`, na.rm = TRUE)
-  ) %>%
+# home price analysis
+home_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
   mutate(
-    growth = (avg_price_2025 - avg_price_2015) / avg_price_2015 * 100
+    current_value = `2025-01-31`,
+    growth_since_2015 = (current_value - `2015-01-31`) / `2015-01-31` * 100
+  ) %>%
+  arrange(desc(current_value)) %>%
+  head(10)
+
+# Create plot
+home_plot <- home_data %>%
+  ggplot(aes(x = reorder(RegionName, current_value), y = current_value)) +
+  geom_col(fill = "#2E86AB", alpha = 0.8) +
+  geom_text(aes(label = dollar(round(current_value, -3))), 
+            hjust = -0.1, size = 2, color = "black") +
+  coord_flip() +
+  scale_y_continuous(labels = dollar, expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "Top 10 Most Expensive Housing Markets (2025)",
+    x = NULL,
+    y = "Median Home Value"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
   )
 
-# Create simple bar chart
-growth_df <- data.frame(
-  year = c("2015", "2025"),
-  price = c(all_markets$avg_price_2015, all_markets$avg_price_2025)
-)
-
-ggplot(growth_df, aes(x = year, y = price)) +
-  geom_col(fill = "steelblue", alpha = 0.7, width = 0.6) +
-  scale_y_continuous(labels = dollar_format()) +
-  labs(
-    title = "Average Home Prices Have Grown Significantly",
-    subtitle = paste("Across all US markets:", round(all_markets$growth), "% increase since 2015"),
-    x = "",
-    y = "Average Home Price"
-  ) +
-  theme_minimal()
+home_plot
 ```
 
-2. Rents Have Followed the Same Pattern
+### Top 10 Most Expensive Rental Markets (2025)
+
 ```{r}
-# Calculate average rent growth
-rent_growth <- Zillow_Observed_Rent_Index %>%
-  summarize(
-    avg_rent_2015 = mean(`2015-01-31`, na.rm = TRUE),
-    avg_rent_2025 = mean(`2025-01-31`, na.rm = TRUE)
-  ) %>%
+# Clean rental cost analysis
+rent_data <- Zillow_Observed_Rent_Index %>%
+  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
   mutate(
-    growth = (avg_rent_2025 - avg_rent_2015) / avg_rent_2015 * 100
+    current_rent = `2025-01-31`,
+    rent_growth = (current_rent - `2015-01-31`) / `2015-01-31` * 100
+  ) %>%
+  arrange(desc(current_rent)) %>%
+  head(10)
+
+# Create clean plot
+rent_plot <- rent_data %>%
+  ggplot(aes(x = reorder(RegionName, current_rent), y = current_rent)) +
+  geom_col(fill = "#A23B72", alpha = 0.8) +
+  geom_text(aes(label = dollar(round(current_rent))), 
+            hjust = -0.1, size = 3, color = "black") +
+  coord_flip() +
+  scale_y_continuous(labels = dollar, expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "Top 10 Most Expensive Rental Markets (2025)",
+    x = NULL,
+    y = "Median Monthly Rent"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
   )
 
-# Create simple bar chart
-rent_df <- data.frame(
-  year = c("2015", "2025"),
-  rent = c(rent_growth$avg_rent_2015, rent_growth$avg_rent_2025)
-)
-
-ggplot(rent_df, aes(x = year, y = rent)) +
-  geom_col(fill = "darkorange", alpha = 0.7, width = 0.6) +
-  scale_y_continuous(labels = dollar_format()) +
-  labs(
-    title = "Rental Costs Have Also Increased Sharply",
-    subtitle = paste("Average monthly rent up:", round(rent_growth$growth), "% since 2015"),
-    x = "",
-    y = "Average Monthly Rent"
-  ) +
-  theme_minimal()
+rent_plot
 ```
 
+## Fastest Growing Markets
 
-3. Most Markets Experienced Significant Growth
-```{r}
-# Show how widespread the growth is
-growth_distribution <- Metropolitan_level_Zillow_Home_Value_Index %>%
-  mutate(
-    growth = (`2024-01-31` - `2015-01-31`) / `2015-01-31` * 100
-  ) %>%
-  filter(!is.na(growth))
-
-# Calculate what percentage of markets saw high growth
-high_growth <- growth_distribution %>%
-  summarize(
-    pct_over_50 = mean(growth > 50) * 100,
-    pct_over_75 = mean(growth > 75) * 100
-  )
-
-ggplot(growth_distribution, aes(x = growth)) +
-  geom_histogram(fill = "forestgreen", alpha = 0.7, bins = 15) +
-  geom_vline(xintercept = 50, linetype = "dashed", color = "red") +
-  labs(
-    title = "Home Price Growth is Widespread",
-    subtitle = paste(round(high_growth$pct_over_50), "% of markets grew more than 50% since 2015"),
-    x = "Price Growth Since 2015 (%)",
-    y = "Number of Housing Markets"
-  ) +
-  theme_minimal()
-```
+### Fastest Growing Housing Markets (2015-2025)
 
 ```{r}
-# Prepare data for interactive scatter plot
+ # Growth analysis
 growth_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
   select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
   mutate(
-    current_price = `2025-01-31`,
     growth_pct = (`2025-01-31` - `2015-01-31`) / `2015-01-31` * 100
   ) %>%
-  filter(!is.na(growth_pct))
+  filter(!is.na(growth_pct)) %>%
+  arrange(desc(growth_pct)) %>%
+  head(10)
 
-# Create interactive scatter plot
-plot_ly(growth_data, 
-        x = ~current_price, 
-        y = ~growth_pct,
-        type = 'scatter',
-        mode = 'markers',
-        marker = list(
-          size = 8,
-          color = ~growth_pct,
-          colorscale = 'Viridis',
-          showscale = TRUE,
-          colorbar = list(title = "Growth %")
-        ),
-        text = ~paste(
-          "<b>", RegionName, "</b><br>",
-          "State: ", StateName, "<br>",
-          "2025 Price: $", format(round(current_price), big.mark = ","), "<br>",
-          "Growth since 2015: ", round(growth_pct, 1), "%"
-        ),
-        hoverinfo = 'text'
-) %>%
-  layout(
-    title = list(
-      text = "<b>Explore Home Price Growth Across All Markets</b>",
-      x = 0.05
-    ),
-    xaxis = list(
-      title = "2025 Home Price",
-      type = "log",
-      tickformat = "$,.0f"
-    ),
-    yaxis = list(
-      title = "Growth Since 2015 (%)"
-    )
+# Create clean growth plot
+growth_plot <- growth_data %>%
+  ggplot(aes(x = reorder(RegionName, growth_pct), y = growth_pct)) +
+  geom_col(fill = "#1B998B", alpha = 0.8) +
+  geom_text(aes(label = sprintf("%.0f%%", growth_pct)), 
+            hjust = -0.1, size = 3, color = "black") +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), 
+                     expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "Fastest Growing Housing Markets (2015-2025)",
+    x = NULL,
+    y = "Price Growth Percentage"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
   )
+
+growth_plot
 ```
 
+## Most Affordable Markets
 
+### Most Affordable Housing Markets (2025)
 
+```{r}
+# Analyze cheapest housing markets
+cheapest_homes <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
+  mutate(
+    current_value = `2025-01-31`,
+    growth_since_2015 = (current_value - `2015-01-31`) / `2015-01-31` * 100
+  ) %>%
+  filter(!is.na(current_value)) %>%
+  arrange(current_value) %>%
+  head(15)
 
+# Create visualization for cheapest markets
+cheapest_plot <- cheapest_homes %>%
+  ggplot(aes(x = reorder(RegionName, -current_value), y = current_value)) +
+  geom_col(fill = "#4A7C59", alpha = 0.8) +
+  geom_text(aes(label = dollar(round(current_value, -2))), 
+            hjust = 1.1, size = 3, color = "white") +
+  coord_flip() +
+  scale_y_continuous(labels = dollar, expand = expansion(mult = c(0, 0.05))) +
+  labs(
+    title = "Most Affordable Housing Markets (2025)",
+    subtitle = "Lowest median home prices",
+    x = NULL,
+    y = "Median Home Value"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray40", size = 10),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+cheapest_plot
+```
+
+### Most Affordable Rental Markets (2025)
+
+```{r}
+# Analyze cheapest rental markets
+cheapest_rents <- Zillow_Observed_Rent_Index %>%
+  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
+  mutate(
+    current_rent = `2025-01-31`,
+    rent_growth = (current_rent - `2015-01-31`) / `2015-01-31` * 100
+  ) %>%
+  filter(!is.na(current_rent)) %>%
+  arrange(current_rent) %>%
+  head(15)
+
+# Create visualization for cheapest rental markets
+cheapest_rent_plot <- cheapest_rents %>%
+  ggplot(aes(x = reorder(RegionName, -current_rent), y = current_rent)) +
+  geom_col(fill = "#E6AF2E", alpha = 0.8) +
+  geom_text(aes(label = dollar(round(current_rent))), 
+            hjust = 1.1, size = 3, color = "white") +
+  coord_flip() +
+  scale_y_continuous(labels = dollar, expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "Most Affordable Rental Markets (2025)",
+    subtitle = "Lowest median monthly rents",
+    x = NULL,
+    y = "Median Monthly Rent"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray40", size = 10),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+cheapest_rent_plot
+```
+
+### Markets with Modest Price Growth (2015-2025)
+
+```{r}
+# Analyze markets with lowest price growth (potentially most stable/affordable)
+slowest_growth <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
+  mutate(
+    current_value = `2025-01-31`,
+    growth_pct = (`2025-01-31` - `2015-01-31`) / `2015-01-31` * 100
+  ) %>%
+  filter(!is.na(growth_pct) & growth_pct > 0) %>%  # Filter out negative growth if any
+  arrange(growth_pct) %>%
+  head(15)
+
+# Create visualization for slowest growing markets
+slow_growth_plot <- slowest_growth %>%
+  ggplot(aes(x = reorder(RegionName, -growth_pct), y = growth_pct)) +
+  geom_col(fill = "#8B1E3F", alpha = 0.8) +
+  geom_text(aes(label = sprintf("%.0f%%", growth_pct)), 
+            hjust = 1.1, size = 3, color = "white") +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), 
+                     expand = expansion(mult = c(0, 0.05))) +
+  labs(
+    title = "Markets with Most Modest Price Growth (2015-2025)",
+    subtitle = "Potentially more stable and affordable long-term options",
+    x = NULL,
+    y = "Price Growth Percentage"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray40", size = 10),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+slow_growth_plot
+```
+
+# Regional Analysis
+
+## Growth Patterns by Region
 
 ```{r}
 # Analyze growth by region
@@ -247,247 +463,117 @@ plot_ly(regional_data,
   )
 ```
 
+## Explore Home Price Growth Across All Markets
 
 ```{r}
-# Enhanced regional analysis with better categories
-regional_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
+# FIRST: Create the growth_data dataframe
+growth_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
   mutate(
-    region = case_when(
-      StateName %in% c("CA", "OR", "WA") ~ "West Coast",
-      StateName %in% c("NY", "NJ", "CT", "MA", "RI", "NH", "VT") ~ "Northeast", 
-      StateName %in% c("TX", "AZ", "CO", "NV", "UT", "ID") ~ "Mountain West",
-      StateName %in% c("FL", "GA", "NC", "SC", "TN", "AL") ~ "Southeast",
-      StateName %in% c("IL", "MI", "OH", "IN", "WI", "MN", "MO") ~ "Midwest",
-      TRUE ~ "Other Regions"
-    )
+    current_price = `2025-01-31`,
+    growth_pct = (`2025-01-31` - `2015-01-31`) / `2015-01-31` * 100
   ) %>%
-  group_by(region) %>%
-  summarize(
-    avg_growth = mean((`2024-01-31` - `2015-01-31`) / `2015-01-31` * 100, na.rm = TRUE),
-    avg_price_2015 = mean(`2015-01-31`, na.rm = TRUE),
-    avg_price_2024 = mean(`2024-01-31`, na.rm = TRUE),
-    market_count = n(),
-    .groups = 'drop'
-  ) %>%
-  mutate(
-    price_increase = avg_price_2024 - avg_price_2015,
-    region = fct_reorder(region, avg_growth)
-  )
+  filter(!is.na(growth_pct))
 
-# Create interactive regional comparison with dual information
-plot_ly(regional_data) %>%
-  add_trace(
-    x = ~region,
-    y = ~avg_growth,
-    type = 'bar',
-    name = 'Price Growth',
-    marker = list(
-      color = ~avg_growth,
-      colorscale = 'Viridis',
-      showscale = TRUE,
-      colorbar = list(title = list(text = "Growth %", side = "right"))
-    ),
-    text = ~paste("<b>", round(avg_growth), "%</b>"),
-    textposition = 'outside',
-    hovertemplate = paste(
-      "<b>%{x}</b><br>",
-      "Average Growth (2015-2024): <b>%{y:.0f}%</b><br>",
-      "2024 Average Price: $%{customdata:,.0f}<br>",
-      "Markets in Region: %{text2}<extra></extra>"
-    ),
-    customdata = ~avg_price_2024,
-    text2 = ~market_count
-  ) %>%
-  add_trace(
-    x = ~region,
-    y = ~avg_price_2024,
-    type = 'scatter',
-    mode = 'markers+text',
-    marker = list(
-      symbol = 'diamond',
-      size = 12,
-      color = 'red',
-      line = list(color = 'white', width = 2)
-    ),
-    name = '2024 Avg Price',
-    yaxis = 'y2',
-    text = ~paste("$", round(avg_price_2024/1000, 0), "K"),
-    textposition = 'middle right',
-    hovertemplate = paste(
-      "2024 Average Price: $%{y:,.0f}<extra></extra>"
-    )
-  ) %>%
+# SECOND: Create the interactive scatter plot
+plot_ly(growth_data, 
+        x = ~current_price, 
+        y = ~growth_pct,
+        type = 'scatter',
+        mode = 'markers',
+        marker = list(
+          size = 8,
+          color = ~growth_pct,
+          colorscale = 'Viridis',
+          showscale = TRUE,
+          colorbar = list(title = "Growth %")
+        ),
+        text = ~paste(
+          "<b>", RegionName, "</b><br>",
+          "State: ", StateName, "<br>",
+          "2025 Price: $", format(round(current_price), big.mark = ","), "<br>",
+          "Growth since 2015: ", round(growth_pct, 1), "%"
+        ),
+        hoverinfo = 'text'
+) %>%
   layout(
     title = list(
-      text = "<b>Regional Housing Markets: Growth vs Prices (2015-2024)</b>",
-      x = 0.05,
-      font = list(size = 16)
+      text = "<b>Explore Home Price Growth Across All Markets</b>",
+      x = 0.05
     ),
     xaxis = list(
-      title = "",
-      tickangle = -45
+      title = "2025 Home Price",
+      type = "log",
+      tickformat = "$.2s",  # This will show $1.0M, $500K, etc.
+      tickangle = -45,  # Rotate labels for better readability
+      tickfont = list(size = 10)
     ),
     yaxis = list(
-      title = list(text = "Price Growth (%)", standoff = 20),
-      ticksuffix = "%",
-      gridcolor = '#e1e5ed'
-    ),
-    yaxis2 = list(
-      title = list(text = "2024 Average Price", standoff = 20),
-      tickformat = "$,.0f",
-      overlaying = "y",
-      side = "right",
-      gridcolor = '#e1e5ed'
-    ),
-    legend = list(
-      x = 0.02,
-      y = 0.98,
-      bgcolor = 'rgba(255,255,255,0.8)'
-    ),
-    margin = list(r = 80),
-    plot_bgcolor = '#f8f9fa',
-    paper_bgcolor = '#f8f9fa'
+      title = "Growth Since 2015 (%)"
+    )
   )
 ```
 
+# Conclusion & Summary
 
-# Introduction
+## Key Findings
 
-The idea of owning a home is a cornerstone of the American Dream. However, for a growing number of Americans, that dream feels increasingly out of reach. Headlines routinely highlight skyrocketing home prices in cities like San Francisco and Austin, but is this a national crisis or a localized problem? This report moves beyond the anecdotes to analyze the data.
+The data reveals a profound and widespread housing affordability crisis across the United States, characterized by several critical patterns:
 
-Our central question is: How has housing affordability changed for median-income households in major U.S. metropolitan areas over the last decade, and what are the primary drivers of this change?
+1.  **Nationwide Price Escalation:** Average home prices have surged by 86% since 2015, far outpacing income growth. This dramatic increase is not confined to coastal markets but represents a national trend affecting communities across the country.
 
-We will explore how the relationship between income, home prices, and rents has shifted since 2015, identifying which cities have become opportunity zones and which have become unattainable for the typical worker.
+2.  **Geographic Disparities:** The crisis manifests differently by region, creating a "two-tier" housing landscape:
 
-# Methods
+    -   **West Coast** markets (112% growth) and Northeast markets (108% growth) have experienced the most extreme appreciation
 
-**Data Acquisition:** This analysis integrates Zillow's Metropolitan-level Home Value Index (ZHVI) and Observed Rent Index (ZORI) with Median Household Income data from the U.S. Census Bureau's American Community Survey (ACS).
+    -   **Midwestern** regions offer relative affordability, with markets like Helena, AR (\$52,400) and Clarksdale, MS (\$53,100) representing rare pockets of accessibility
 
-**Data Processing:** The datasets were cleaned by filtering to a consistent 2015-2025 period, and calculating annual averages from monthly data.
+    -   **Sun Belt** markets show mixed patterns, with some areas experiencing explosive growth while others remain more moderate
 
-**Key Metrics:** We derived core affordability indicators, including the Affordability Index (median home price divided by median income) and Rent Burden (annual rent as a percentage of income).
+3.  **Rental Market Parallel:** Rental costs have followed a similar trajectory, rising 47% nationally since 2015. The most expensive rental markets (Glenwood Springs, CO at \$4,430/month) now demand incomes well above national averages.
 
-**Tools & Techniques:** The analysis was conducted using R and the Tidyverse suite for data wrangling. Interactive visualizations were built with ggplot2 and Plotly to enhance data exploration and communication.
+4.  **Growth Distribution:** While 82% of markets grew more than 50%, the distribution is uneven. Markets like Clewiston, FL (nearly 200% growth) experienced hyper-appreciation, while others like Williston, ND (2% growth) remained relatively stable, offering potential opportunities for cost-conscious buyers.
 
+5.  **Affordability Extremes:** The data reveals shocking disparities:
 
+    -   **Most expensive:** San Jose, CA (\$1.6M median home) requires approximately 24 times the median U.S. household income
 
-# Results
+    -   **Most affordable:** Helena, AR (\$52,400 median home) remains accessible at about 0.7 times the median income
 
-```{r}
-# Clean home price analysis
-home_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
-  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
-  mutate(
-    current_value = `2025-01-31`,
-    growth_since_2015 = (current_value - `2015-01-31`) / `2015-01-31` * 100
-  ) %>%
-  arrange(desc(current_value)) %>%
-  head(10)
+    -   **Rental extremes range** from \$4,430/month in resort communities to \$700/month in small Midwestern towns
 
-# Create clean plot
-home_plot <- home_data %>%
-  ggplot(aes(x = reorder(RegionName, current_value), y = current_value)) +
-  geom_col(fill = "#2E86AB", alpha = 0.8) +
-  geom_text(aes(label = dollar(round(current_value, -3))), 
-            hjust = -0.1, size = 2, color = "black") +
-  coord_flip() +
-  scale_y_continuous(labels = dollar, expand = expansion(mult = c(0, 0.1))) +
-  labs(
-    title = "Top 10 Most Expensive Housing Markets (2025)",
-    x = NULL,
-    y = "Median Home Value"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank()
-  )
+## Implications 
 
-home_plot
-```
+**Economic Consequences:** The widening gap between housing costs and incomes threatens to:
 
+-   Limit geographic mobility and labor market efficiency
 
-```{r}
-# Clean rental cost analysis
-rent_data <- Zillow_Observed_Rent_Index %>%
-  select(RegionName, StateName, `2025-01-31`, `2015-01-31`) %>%
-  mutate(
-    current_rent = `2025-01-31`,
-    rent_growth = (current_rent - `2015-01-31`) / `2015-01-31` * 100
-  ) %>%
-  arrange(desc(current_rent)) %>%
-  head(10)
+-   Exacerbate wealth inequality between homeowners and renters
 
-# Create clean plot
-rent_plot <- rent_data %>%
-  ggplot(aes(x = reorder(RegionName, current_rent), y = current_rent)) +
-  geom_col(fill = "#A23B72", alpha = 0.8) +
-  geom_text(aes(label = dollar(round(current_rent))), 
-            hjust = -0.1, size = 3, color = "black") +
-  coord_flip() +
-  scale_y_continuous(labels = dollar, expand = expansion(mult = c(0, 0.1))) +
-  labs(
-    title = "Top 10 Most Expensive Rental Markets (2025)",
-    x = NULL,
-    y = "Median Monthly Rent"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank()
-  )
+-   Strain household budgets, reducing disposable income for other economic activities
 
-rent_plot
-```
+**Social Impact:** Traditional pathways to homeownership, historically the primary means of wealth accumulation for middle-class Americans are becoming increasingly inaccessible, particularly for younger generations and first-time buyers.
 
+**Policy Considerations:** The crisis demands multi-faceted solutions including:
 
+-   Increased housing supply, particularly affordable units
 
+-   Regional strategies that recognize distinct market dynamics
 
-Market Growth Leaders
-```{r}
-# Growth analysis
-growth_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
-  select(RegionName, StateName, `2024-01-31`, `2015-01-31`) %>%
-  mutate(
-    growth_pct = (`2024-01-31` - `2015-01-31`) / `2015-01-31` * 100
-  ) %>%
-  filter(!is.na(growth_pct)) %>%
-  arrange(desc(growth_pct)) %>%
-  head(10)
+-   Support for first-time buyers in moderately-priced markets
 
-# Create clean growth plot
-growth_plot <- growth_data %>%
-  ggplot(aes(x = reorder(RegionName, growth_pct), y = growth_pct)) +
-  geom_col(fill = "#1B998B", alpha = 0.8) +
-  geom_text(aes(label = sprintf("%.0f%%", growth_pct)), 
-            hjust = -0.1, size = 3, color = "black") +
-  coord_flip() +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), 
-                     expand = expansion(mult = c(0, 0.1))) +
-  labs(
-    title = "Fastest Growing Housing Markets (2015-2024)",
-    x = NULL,
-    y = "Price Growth Percentage"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank()
-  )
+-   Rental market stabilization measures
 
-growth_plot
-```
+## Looking Forward 
 
-## Key Finding 1
+While the data paints a challenging picture, it also identifies opportunity zones markets that remain relatively affordable with stable growth patterns. For policymakers, urban planners, and prospective homeowners, these findings underscore the need for:
 
+1.  **Targeted interventions** in high-cost regions to preserve economic diversity
 
+2.  **Strategic investment** in affordable markets to prevent future price spirals
 
-## Key Finding 2
+3.  **Regional cooperation** to address housing as an interconnected system rather than isolated markets
 
+The American Dream of homeownership is not disappearing entirely but is geographically restructuring. Success in today's market requires understanding these regional dynamics and recognizing that affordability now depends heavily on location choices that balance economic opportunity with housing costs.
 
-# Conclusion and Summary
-
-
+The crisis is both national in scope and local in solution, requiring data-informed approaches that address specific market conditions while recognizing the interconnected nature of America's housing ecosystem.

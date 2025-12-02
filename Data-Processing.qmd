@@ -2,43 +2,41 @@
 title: "Data Processing"
 ---
 
+# Methods
+
 ## Data Acquisition
 
-Describe where you got the data and how you downloaded it.
+**Zillow Housing Data:**
 
+-   Home Value Index (ZHVI): Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv
 
-1. Zillow Home Value & Rent Data
-Source: Zillow Research Data Portal (https://www.zillow.com/research/data/)
+-   Rent Index (ZORI): Metro_zori_uc_sfrcondomfr_sm_month.csv
 
-Files Downloaded:
+-   Acquisition: Direct download from Zillow Research Data Portal
 
-Metro_zhvi_uc_sfrcondo_tier.csv - All Homes Time Series, Metro Level
+-   Coverage: Monthly values for all U.S. Metropolitan Statistical Areas, 2015-2025
 
-Metro_zori_sm.csv - Observed Rent Index, Metro Level
+**Census Income Data:**
 
-Acquisition Method: Direct download via web browser. Files contain monthly values for all metropolitan statistical areas.
+-   Source: U.S. Census Bureau American Community Survey (ACS)
 
+-   File: ACSST1Y2024.S1903-2025-11-19T223915.csv
 
+-   Metric: Median Household Income by Metropolitan Area
 
-2. Census Income Data
-Source: U.S. Census Bureau American Community Survey (ACS)
+-   Year: 2024 (most recent available)
 
-Table Used: S1903 - Median Income in the Past 12 Months
+**Mortgage Rate Data:**
 
-Geography: Metropolitan Statistical Areas
+-   Source: Federal Reserve Economic Data (FRED)
 
-Years: 2014-2022 (most recent available)
+-   File: MORTGAGE30US.csv
 
+-   Metric: 30-Year Fixed Mortgage Rate
 
-3. Mortgage Rate Data
-Source: Federal Reserve Economic Data (FRED)
+-   Period: 2014-2025
 
-Series: MORTGAGE30US - 30-Year Fixed Rate Mortgage Average
-
-Acquisition Method: Downloaded via the fredr R package interface
-
-Time Period: Monthly averages, 2014-2025
-
+**Data Loading**
 
 ```{r, eval=FALSE}
 library(readr)
@@ -48,21 +46,128 @@ Zillow_Observed_Rent_Index <- read_csv("Metro_zori_uc_sfrcondomfr_sm_month.csv")
 Mortage_interest_rates <- read_csv("MORTGAGE30US.csv")
 ```
 
-
-# Data Cleaning
-
-Show the steps you took to clean the data.
+## Data Cleaning
 
 ```{r}
+# 1. Standardize column names across datasets
+home_value_data <- Metropolitan_level_Zillow_Home_Value_Index %>%
+  rename(
+    region_id = RegionID,
+    region_name = RegionName,
+    state = StateName,
+    size_rank = SizeRank
+  )
+
+rent_data <- Zillow_Observed_Rent_Index %>%
+  rename(
+    region_id = RegionID,
+    region_name = RegionName,
+    state = StateName
+  )
+
+# 2. Extract key years for analysis
+key_dates <- c("2015-01-31", "2020-01-31", "2025-01-31")
+
+# 3. Create cleaned home value dataset
+cleaned_home_values <- home_value_data %>%
+  select(region_id, region_name, state, all_of(key_dates)) %>%
+  pivot_longer(
+    cols = all_of(key_dates),
+    names_to = "date",
+    values_to = "home_value"
+  ) %>%
+  mutate(
+    date = as.Date(date),
+    year = year(date)
+  ) %>%
+  filter(!is.na(home_value))
+
+# 4. Create cleaned rent dataset
+cleaned_rents <- rent_data %>%
+  select(region_id, region_name, state, all_of(key_dates)) %>%
+  pivot_longer(
+    cols = all_of(key_dates),
+    names_to = "date",
+    values_to = "monthly_rent"
+  ) %>%
+  mutate(
+    date = as.Date(date),
+    year = year(date)
+  ) %>%
+  filter(!is.na(monthly_rent))
+
 
 ```
 
-# Exploratory Data Analysis
-
-This is where you put all your exploratory plots (the ones that didn't make it into the final report).
+## Exploratory Data Analysis
 
 ```{r}
 #| echo: true
-# Exploratory histogram
-# ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()
+# Exploratory visualizations
+
+# 1. Distribution of 2025 home prices
+home_price_dist <- cleaned_home_values %>%
+  filter(year == 2025) %>%
+  ggplot(aes(x = home_value)) +
+  geom_histogram(fill = "steelblue", bins = 50) +
+  scale_x_continuous(labels = scales::dollar) +
+  labs(
+    title = "Distribution of Home Prices Across Markets (2025)",
+    x = "Home Value",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+home_price_dist
+
+
+
+# 2. Growth trends over time
+growth_trends <- cleaned_home_values %>%
+  group_by(year) %>%
+  summarize(
+    avg_home_value = mean(home_value, na.rm = TRUE),
+    median_home_value = median(home_value, na.rm = TRUE)
+  ) %>%
+  ggplot(aes(x = year, y = avg_home_value)) +
+  geom_line(color = "steelblue", size = 1.5) +
+  geom_point(color = "darkblue", size = 2) +
+  scale_y_continuous(labels = scales::dollar) +
+  labs(
+    title = "Average Home Price Trend (2015-2025)",
+    x = "Year",
+    y = "Average Home Value"
+  ) +
+  theme_minimal()
+
+growth_trends
+
+```
+
+## Key Metrics Calculation
+
+```{r}
+# Calculate price growth metrics
+price_growth_metrics <- cleaned_home_values %>%
+  group_by(region_name, state) %>%
+  arrange(year) %>%
+  summarize(
+    price_2015 = first(home_value[year == 2015]),
+    price_2025 = first(home_value[year == 2025]),
+    growth_pct = (price_2025 - price_2015) / price_2015 * 100
+  ) %>%
+  filter(!is.na(growth_pct))
+
+# Calculate rent growth metrics
+rent_growth_metrics <- cleaned_rents %>%
+  group_by(region_name, state) %>%
+  arrange(year) %>%
+  summarize(
+    rent_2015 = first(monthly_rent[year == 2015]),
+    rent_2025 = first(monthly_rent[year == 2025]),
+    rent_growth_pct = (rent_2025 - rent_2015) / rent_2015 * 100
+  ) %>%
+  filter(!is.na(rent_growth_pct))
+
+
 ```

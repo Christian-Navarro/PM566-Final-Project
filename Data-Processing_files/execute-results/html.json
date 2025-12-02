@@ -1,0 +1,17 @@
+{
+  "hash": "a2d75a83b6bb89e110800c2b93db3db2",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Data Processing\"\n---\n\n## Data Acquisition\n\nDescribe where you got the data and how you downloaded it.\n\n\n1. Zillow Home Value & Rent Data\nSource: Zillow Research Data Portal (https://www.zillow.com/research/data/)\n\nFiles Downloaded:\n\nMetro_zhvi_uc_sfrcondo_tier.csv - All Homes Time Series, Metro Level\n\nMetro_zori_sm.csv - Observed Rent Index, Metro Level\n\nAcquisition Method: Direct download via web browser. Files contain monthly values for all metropolitan statistical areas.\n\n\n\n2. Census Income Data\nSource: U.S. Census Bureau American Community Survey (ACS)\n\nTable Used: S1903 - Median Income in the Past 12 Months\n\nGeography: Metropolitan Statistical Areas\n\nYears: 2014-2022 (most recent available)\n\n\n3. Mortgage Rate Data\nSource: Federal Reserve Economic Data (FRED)\n\nSeries: MORTGAGE30US - 30-Year Fixed Rate Mortgage Average\n\nAcquisition Method: Downloaded via the fredr R package interface\n\nTime Period: Monthly averages, 2014-2025\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(readr)\nCensus_Income_Data <- read_csv(\"ACSST1Y2024.S1903-2025-11-19T223915.csv\")\nMetropolitan_level_Zillow_Home_Value_Index <- read_csv(\"Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv\")\nZillow_Observed_Rent_Index <- read_csv(\"Metro_zori_uc_sfrcondomfr_sm_month.csv\")\nMortage_interest_rates <- read_csv(\"MORTGAGE30US.csv\")\n```\n:::\n\n\n\n# Data Cleaning\n\nShow the steps you took to clean the data.\n\n\n::: {.cell}\n\n:::\n\n\n# Exploratory Data Analysis\n\nThis is where you put all your exploratory plots (the ones that didn't make it into the final report).\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# Exploratory histogram\n# ggplot(cleaned_data, aes(x = my_variable)) + geom_histogram()\n```\n:::\n\n",
+    "supporting": [
+      "Data-Processing_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
